@@ -68,10 +68,10 @@ spec:
   ingressClassName: traefik
   tls:
   - hosts:
-    - focalboard.91-134-255-217.sslip.io
+    - focalboard.tools.datakushi.com
     secretName: focalboard-tls
   rules:
-  - host: focalboard.91-134-255-217.sslip.io
+  - host: focalboard.tools.datakushi.com
     http:
       paths:
       - path: /
