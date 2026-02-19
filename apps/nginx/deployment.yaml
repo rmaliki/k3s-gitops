@@ -39,7 +39,7 @@ metadata:
   namespace: default
 spec:
   rules:
-  - host: PLACEHOLDER_DOMAIN
+  - host: nginx.tools.datakushi.com
     http:
       paths:
       - path: /
