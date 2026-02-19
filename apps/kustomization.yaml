@@ -1,0 +1,8 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - nginx/deployment.yaml
+  - vaultwarden/deployment.yaml
+  - easyappointments/deployment.yaml
+  - focalboard/deployment.yaml
+  - vault/deployment.yaml
