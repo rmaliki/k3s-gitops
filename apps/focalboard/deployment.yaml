@@ -1,0 +1,83 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: focalboard
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: focalboard-data
+  namespace: focalboard
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: focalboard
+  namespace: focalboard
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: focalboard
+  template:
+    metadata:
+      labels:
+        app: focalboard
+    spec:
+      enableServiceLinks: false
+      containers:
+      - name: focalboard
+        image: mattermost/focalboard:latest
+        ports:
+        - containerPort: 8000
+        volumeMounts:
+        - name: data
+          mountPath: /opt/focalboard/data
+      volumes:
+      - name: data
+        persistentVolumeClaim:
+          claimName: focalboard-data
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: focalboard
+  namespace: focalboard
+spec:
+  type: ClusterIP
+  selector:
+    app: focalboard
+  ports:
+  - port: 80
+    targetPort: 8000
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: focalboard
+  namespace: focalboard
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+spec:
+  ingressClassName: traefik
+  tls:
+  - hosts:
+    - focalboard.91-134-255-217.sslip.io
+    secretName: focalboard-tls
+  rules:
+  - host: focalboard.91-134-255-217.sslip.io
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: focalboard
+            port:
+              number: 80
