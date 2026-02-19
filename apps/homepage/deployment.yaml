@@ -1,0 +1,145 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: homepage
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: homepage-config
+  namespace: homepage
+data:
+  settings.yaml: |
+    title: Homelab Dashboard
+    theme: dark
+    color: slate
+    headerStyle: boxed
+    layout:
+      Infrastructure:
+        style: row
+        columns: 3
+      Apps:
+        style: row
+        columns: 3
+
+  widgets.yaml: |
+    - datetime:
+        text_size: xl
+        format:
+          dateStyle: long
+          timeStyle: short
+
+  services.yaml: |
+    - Infrastructure:
+        - K3s GitOps Repo:
+            href: https://github.com/rmaliki/k3s-gitops
+            description: Cluster manifests
+            icon: github-light
+        - Vaultwarden:
+            href: https://vault.tools.datakushi.com
+            description: Password manager
+            icon: vaultwarden
+
+    - Apps:
+        - EasyAppointments:
+            href: https://rdv.tools.datakushi.com
+            description: Booking app
+            icon: calendar
+        - Focalboard:
+            href: https://focalboard.tools.datakushi.com
+            description: Project management
+            icon: kanboard
+        - HashiCorp Vault:
+            href: https://vault-hc.tools.datakushi.com
+            description: Secrets management
+            icon: vault
+
+  bookmarks.yaml: |
+    - Developer:
+        - GitHub:
+            - href: https://github.com/
+        - Flux Docs:
+            - href: https://fluxcd.io/
+
+  kubernetes.yaml: |
+    mode: disabled
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: homepage
+  namespace: homepage
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: homepage
+  template:
+    metadata:
+      labels:
+        app: homepage
+    spec:
+      containers:
+      - name: homepage
+        image: ghcr.io/gethomepage/homepage:latest
+        ports:
+        - containerPort: 3000
+        volumeMounts:
+        - name: config
+          mountPath: /app/config/settings.yaml
+          subPath: settings.yaml
+        - name: config
+          mountPath: /app/config/widgets.yaml
+          subPath: widgets.yaml
+        - name: config
+          mountPath: /app/config/services.yaml
+          subPath: services.yaml
+        - name: config
+          mountPath: /app/config/bookmarks.yaml
+          subPath: bookmarks.yaml
+        - name: config
+          mountPath: /app/config/kubernetes.yaml
+          subPath: kubernetes.yaml
+      volumes:
+      - name: config
+        configMap:
+          name: homepage-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: homepage
+  namespace: homepage
+spec:
+  type: ClusterIP
+  selector:
+    app: homepage
+  ports:
+  - port: 80
+    targetPort: 3000
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: homepage
+  namespace: homepage
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+spec:
+  ingressClassName: traefik
+  tls:
+  - hosts:
+    - homepage.tools.datakushi.com
+    secretName: homepage-tls
+  rules:
+  - host: homepage.tools.datakushi.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: homepage
+            port:
+              number: 80

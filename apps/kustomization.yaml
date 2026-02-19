@@ -6,3 +6,4 @@ resources:
   - easyappointments/deployment.yaml
   - focalboard/deployment.yaml
   - vault/deployment.yaml
+  - homepage/deployment.yaml
