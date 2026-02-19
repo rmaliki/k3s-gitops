@@ -37,7 +37,13 @@ kind: Ingress
 metadata:
   name: nginx
   namespace: default
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
 spec:
+  tls:
+  - hosts:
+    - nginx.tools.datakushi.com
+    secretName: nginx-tls
   rules:
   - host: nginx.tools.datakushi.com
     http:
