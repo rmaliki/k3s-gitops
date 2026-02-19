@@ -83,6 +83,9 @@ spec:
       containers:
       - name: homepage
         image: ghcr.io/gethomepage/homepage:latest
+        env:
+        - name: HOMEPAGE_ALLOWED_HOSTS
+          value: "homepage.tools.datakushi.com"
         ports:
         - containerPort: 3000
         volumeMounts:
