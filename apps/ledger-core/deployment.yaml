@@ -1,0 +1,99 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: ledger-core
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: ledger-core
+  namespace: ledger-core
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ledger-core
+  namespace: ledger-core
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ledger-core
+  template:
+    metadata:
+      labels:
+        app: ledger-core
+      annotations:
+        vault.hashicorp.com/agent-inject: "true"
+        vault.hashicorp.com/agent-pre-populate-only: "true"
+        vault.hashicorp.com/role: "ledger-core"
+        vault.hashicorp.com/agent-inject-secret-ledger-env: "secret/data/ledger/core"
+        vault.hashicorp.com/agent-inject-template-ledger-env: |
+          {{- with secret "secret/data/ledger/core" -}}
+          export QONTO_API_KEY="{{ .Data.data.QONTO_API_KEY }}"
+          export QONTO_ORGANIZATION_ID="{{ .Data.data.QONTO_ORGANIZATION_ID }}"
+          {{- end }}
+    spec:
+      serviceAccountName: ledger-core
+      containers:
+      - name: backend
+        image: qonto/qonto-mcp-server:latest
+        command: ["/bin/sh", "-ec"]
+        args:
+        - |
+          source /vault/secrets/ledger-env
+          python qonto_mcp/server.py --transport streamable-http
+        env:
+        - name: QONTO_THIRDPARTY_HOST
+          value: "https://thirdparty.qonto.com"
+        ports:
+        - name: http
+          containerPort: 8000
+        readinessProbe:
+          tcpSocket:
+            port: 8000
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        livenessProbe:
+          tcpSocket:
+            port: 8000
+          initialDelaySeconds: 20
+          periodSeconds: 20
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ledger-core
+  namespace: ledger-core
+spec:
+  type: ClusterIP
+  selector:
+    app: ledger-core
+  ports:
+  - name: http
+    port: 8000
+    targetPort: 8000
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ledger-core
+  namespace: ledger-core
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+spec:
+  tls:
+  - hosts:
+    - ledger.tools.datakushi.com
+    secretName: ledger-core-tls
+  rules:
+  - host: ledger.tools.datakushi.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: ledger-core
+            port:
+              number: 8000
