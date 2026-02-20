@@ -7,3 +7,4 @@ resources:
   - focalboard/deployment.yaml
   - vault/deployment.yaml
   - homepage/deployment.yaml
+  - ledger-core/deployment.yaml
