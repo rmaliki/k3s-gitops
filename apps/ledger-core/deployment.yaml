@@ -41,7 +41,7 @@ spec:
         command: ["/bin/sh", "-ec"]
         args:
         - |
-          source /vault/secrets/ledger-env
+          . /vault/secrets/ledger-env
           python qonto_mcp/server.py --transport streamable-http
         env:
         - name: QONTO_THIRDPARTY_HOST
