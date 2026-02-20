@@ -8,7 +8,7 @@ Run these once (with a Vault token that can manage auth/policies).
 export VAULT_ADDR="https://vault-hc.tools.datakushi.com"
 # export VAULT_TOKEN="..."
 
-vault kv put secret/ledger/core \
+vault kv put kv/ledger/core \
   QONTO_API_KEY="<your_qonto_api_key>" \
   QONTO_ORGANIZATION_ID="<your_org_id>"
 ```
@@ -29,7 +29,7 @@ vault write auth/kubernetes/config \
 
 ```hcl
 # ledger-core-policy.hcl
-path "secret/data/ledger/core" {
+path "kv/data/ledger/core" {
   capabilities = ["read"]
 }
 ```

@@ -27,9 +27,9 @@ spec:
         vault.hashicorp.com/agent-inject: "true"
         vault.hashicorp.com/agent-pre-populate-only: "true"
         vault.hashicorp.com/role: "ledger-core"
-        vault.hashicorp.com/agent-inject-secret-ledger-env: "secret/data/ledger/core"
+        vault.hashicorp.com/agent-inject-secret-ledger-env: "kv/data/ledger/core"
         vault.hashicorp.com/agent-inject-template-ledger-env: |
-          {{- with secret "secret/data/ledger/core" -}}
+          {{- with secret "kv/data/ledger/core" -}}
           export QONTO_API_KEY="{{ .Data.data.QONTO_API_KEY }}"
           export QONTO_ORGANIZATION_ID="{{ .Data.data.QONTO_ORGANIZATION_ID }}"
           {{- end }}
