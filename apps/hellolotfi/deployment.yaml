@@ -1,0 +1,86 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: hellolotfi
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: hellolotfi-html
+  namespace: hellolotfi
+data:
+  index.html: |
+    HelloLotfi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hellolotfi
+  namespace: hellolotfi
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: hellolotfi
+  template:
+    metadata:
+      labels:
+        app: hellolotfi
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:alpine
+        ports:
+        - containerPort: 80
+        volumeMounts:
+        - name: html
+          mountPath: /usr/share/nginx/html/index.html
+          subPath: index.html
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 80
+          initialDelaySeconds: 2
+          periodSeconds: 5
+      volumes:
+      - name: html
+        configMap:
+          name: hellolotfi-html
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: hellolotfi
+  namespace: hellolotfi
+spec:
+  type: ClusterIP
+  selector:
+    app: hellolotfi
+  ports:
+  - port: 80
+    targetPort: 80
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: hellolotfi
+  namespace: hellolotfi
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+spec:
+  ingressClassName: traefik
+  tls:
+  - hosts:
+    - lotfi.tools.datakushi.com
+    secretName: hellolotfi-tls
+  rules:
+  - host: lotfi.tools.datakushi.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: hellolotfi
+            port:
+              number: 80

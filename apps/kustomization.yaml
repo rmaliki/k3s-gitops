@@ -8,3 +8,4 @@ resources:
   - vault/deployment.yaml
   - homepage/deployment.yaml
   - ledger-core/deployment.yaml
+  - hellolotfi/deployment.yaml
