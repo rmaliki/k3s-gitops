@@ -71,10 +71,10 @@ spec:
   ingressClassName: traefik
   tls:
   - hosts:
-    - lotfi.tools.datacuchi.com
+    - lotfi.tools.datakushi.com
     secretName: hellolotfi-tls
   rules:
-  - host: lotfi.tools.datacuchi.com
+  - host: lotfi.tools.datakushi.com
     http:
       paths:
       - path: /
