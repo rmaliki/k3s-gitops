@@ -87,7 +87,7 @@ metadata:
 spec:
   ipAllowList:
     sourceRange:
-    - 91.134.255.217/32
+    - 91.134.255.219/32
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
