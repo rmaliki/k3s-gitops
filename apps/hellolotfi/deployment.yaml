@@ -10,7 +10,71 @@ metadata:
   namespace: hellolotfi
 data:
   index.html: |
-    HelloLotfi
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>HelloLotfi</title>
+      <style>
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{
+          min-height:100vh;display:flex;align-items:center;justify-content:center;
+          font-family:'Segoe UI',system-ui,-apple-system,sans-serif;
+          background:linear-gradient(135deg,#0f0c29,#302b63,#24243e);
+          overflow:hidden;
+        }
+        .card{
+          background:rgba(255,255,255,.07);
+          backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+          border:1px solid rgba(255,255,255,.12);
+          border-radius:24px;padding:3rem 4rem;text-align:center;
+          box-shadow:0 8px 32px rgba(0,0,0,.3);
+          animation:fadeUp .8s ease-out;
+          transition:transform .3s ease,box-shadow .3s ease;
+        }
+        .card:hover{
+          transform:translateY(-6px);
+          box-shadow:0 16px 48px rgba(99,102,241,.25);
+        }
+        h1{
+          font-size:3.5rem;font-weight:700;letter-spacing:-.02em;
+          background:linear-gradient(135deg,#a78bfa,#818cf8,#6366f1,#c084fc);
+          background-size:200% 200%;
+          -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+          background-clip:text;
+          animation:shimmer 4s ease infinite;
+        }
+        .sub{
+          margin-top:.75rem;font-size:1rem;color:rgba(255,255,255,.5);
+          letter-spacing:.15em;text-transform:uppercase;
+        }
+        .dot{
+          display:inline-block;width:8px;height:8px;border-radius:50%;
+          background:#6366f1;margin-right:.6rem;
+          animation:pulse 2s ease-in-out infinite;
+        }
+        @keyframes fadeUp{
+          from{opacity:0;transform:translateY(30px)}
+          to{opacity:1;transform:translateY(0)}
+        }
+        @keyframes shimmer{
+          0%,100%{background-position:0% 50%}
+          50%{background-position:100% 50%}
+        }
+        @keyframes pulse{
+          0%,100%{opacity:.4;transform:scale(1)}
+          50%{opacity:1;transform:scale(1.3)}
+        }
+      </style>
+    </head>
+    <body>
+      <div class="card">
+        <h1>HelloLotfi</h1>
+        <p class="sub"><span class="dot"></span>alive &amp; well</p>
+      </div>
+    </body>
+    </html>
 ---
 apiVersion: apps/v1
 kind: Deployment
